@@ -18,6 +18,7 @@ function Vect2:new(x, y)
     setmetatable(o, {
         __add = function(a, b) return self.add(a, b) end,
         __sub = function(a, b) return self.sub(a, b) end,
+        __mul = function (a, b) return self.mul(a, b) end,
         __tostring = function(vect2) return self.toString(vect2) end,
     })
     self.__index = self
@@ -91,6 +92,24 @@ function Vect2.sub(a, b)
     end
 
     return Vect2:new(a.x - b.x, a.y - b.y)
+end
+
+function Vect2.mul(a, b)
+    -- Handle the case when we try to add a number
+    if type(a) == 'number' or type(b) == 'number' then
+        local vect = nil
+        local num = nil
+        if type(a) == 'number' then
+            num = a
+            vect = b
+        else
+            num = b
+            vect = a
+        end
+        return Vect2:new(vect.x * num, vect.y * num)
+    end
+
+    return Vect2:new(a.x * b.x, a.y * b.y)
 end
 
 function Vect2.toString(vect2)
