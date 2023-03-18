@@ -1,7 +1,7 @@
 ----------
 --- Tileset used by the Map
 
-local stringx = require('pl.stringx')
+local String = require('engine.util.String')
 local Vect2   = require('engine.util.Vect2')
 
 --- Tileset data
@@ -40,7 +40,7 @@ end
 --- Load the tilset data in usable format
 -- This method is called automaticaly by the constructor.
 function Tileset:load(tilesetDefinition)
-    local imageRealPath = stringx.replace(tilesetDefinition.image, '..', 'assets')
+    local imageRealPath = String.replace(tilesetDefinition.image, '..', 'assets')
 
     self.image = love.graphics.newImage(imageRealPath)
     self.offset = Vect2.fromTable(tilesetDefinition.tileoffset)

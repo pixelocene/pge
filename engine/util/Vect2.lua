@@ -1,8 +1,6 @@
 ----------
 --- 2D Vector
 
-local tablex = require('pl.tablex')
-
 --- Vector values
 -- @tfield number x X value
 -- @tfield number y Y value
