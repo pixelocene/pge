@@ -88,7 +88,6 @@ function Map:draw()
         end
     end
 
-    self:getTileUnderCursor()
 end
 
 --- Get the tileset for the tileId
@@ -110,10 +109,10 @@ function Map:getTileUnderCursor()
 
     local absolutePosition = mouse - _G.DataTree.engine.camera
 
-    local tileX = math.floor(absolutePosition.x / self.tileWidth)
-    local tileY = math.floor(absolutePosition.y / self.tileHeight)
+    local tileX = math.ceil(absolutePosition.x / self.tileWidth)
+    local tileY = math.ceil(absolutePosition.y / self.tileHeight)
 
-    return nil
+    return tileX, tileY
 end
 
 return Map
