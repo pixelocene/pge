@@ -13,65 +13,74 @@ local Tile = require('engine.map.Tile')
 -- @field tileHeight (**int**) The height of a tile
 -- @field quads (@{engine.map.Tile}[]) The tiles in the tileset, indexed by tile number
 local Tileset = {
-    firstTileId = 1,
-    image = nil,
-    offset = nil,
-    tileWidth = nil,
-    tileHeight = nil,
-    tiles = {},
-    cols = 0,
-    rows = 0,
+    i_firstTileId = 1,
+    o_image = nil,
+    v_offset = nil,
+    v_tileSize = nil,
+    i_tileWidth = nil,
+    i_tileHeight = nil,
+    a_tiles = {},
+    v_size = nil,
 }
 
 --- Constructor
--- @param tilesetDefinition A tileset Lua export from Tiled
--- @tparam int firstTileId The id of the first tile
-function Tileset:new(tilesetDefinition, firstTileId)
-    local o = {
-        firstTileId = firstTileId,
-        tiles = {},
+-- @param _tblTilesetDefinition A tileset Lua export from Tiled
+-- @tparam _iFirstTileId The id of the first tile
+function Tileset:new(_tbl_tilesetDefinition, _i_firstTileId)
+    local tbl_o = {
+        i_firstTileId = _i_firstTileId,
+        a_tiles = {},
     }
-    
-    setmetatable(o, self)
+
+    setmetatable(tbl_o, self)
     self.__index = self
 
-    o:load(tilesetDefinition)
+    tbl_o:load(_tbl_tilesetDefinition)
 
-    return o
+    return tbl_o
 end
 
 --- Load the tilset data in usable format
 -- This method is called automaticaly by the constructor.
-function Tileset:load(tilesetDefinition)
-    local imageRealPath = String.replace(tilesetDefinition.image, '..', 'assets')
+function Tileset:load(_tbl_tilesetDefinition)
+    local sImageRealPath = String.replace(_tbl_tilesetDefinition.image, '..', 'assets')
+    local v_imageSize = Vect2:new(_tbl_tilesetDefinition.imagewidth, _tbl_tilesetDefinition.imageheight)
+    local tbl_tilesProperties = {}
 
-    self.image = love.graphics.newImage(imageRealPath)
-    self.offset = Vect2.fromTable(tilesetDefinition.tileoffset)
-    self.tileWidth = tilesetDefinition.tilewidth
-    self.tileHeight = tilesetDefinition.tileheight
-    self.cols = tilesetDefinition.columns
-    self.rows = tilesetDefinition.tilecount / self.cols
+    self.o_image = love.graphics.newImage(sImageRealPath)
+    self.v_offset = Vect2.fromTable(_tbl_tilesetDefinition.tileoffset)
+    self.v_tileSize = Vect2:new(_tbl_tilesetDefinition.tilewidth, _tbl_tilesetDefinition.tileheight)
+    self.v_size = Vect2:new(_tbl_tilesetDefinition.columns, _tbl_tilesetDefinition.tilecount / _tbl_tilesetDefinition.columns)
 
-    local imageWidth = tilesetDefinition.imagewidth
-    local imageHeight = tilesetDefinition.imageheight
+    for i_index = 1, #_tbl_tilesetDefinition.tiles do
+        local tbl_tile = _tbl_tilesetDefinition.tiles[i_index]
+        tbl_tilesProperties[tbl_tile.id] = tbl_tile.properties
+    end
 
     -- Generate Quads for each tile
-    local index = 1
-    for y = 1, self.rows do
-        for x = 1, self.cols do
-            local gridPosition = Vect2:new(x, y)
-            local absolutePosition = Vect2:new(
-                (x - 1) * self.tileWidth,
-                (y - 1) * self.tileHeight
+    local i_index = 1
+    for i_y = 1, self.v_size.n_y do
+        for i_x = 1, self.v_size.n_x do
+            local v_gridPosition = Vect2:new(i_x, i_y)
+            local v_absolutePosition = Vect2:new(
+                (i_x - 1) * self.v_tileSize.n_x,
+                (i_y - 1) * self.v_tileSize.n_y
             )
 
-            local quad = love.graphics.newQuad(absolutePosition.x, absolutePosition.y, self.tileWidth, self.tileHeight, imageWidth, imageHeight)
+            local o_quad = love.graphics.newQuad(
+                v_absolutePosition.n_x,
+                v_absolutePosition.n_y,
+                self.v_tileSize.n_x,
+                self.v_tileSize.n_y,
+                v_imageSize.n_x,
+                v_imageSize.n_y
+            )
 
-            local tile = Tile:new(absolutePosition, gridPosition, index, quad, {})
+            local o_tile = Tile:new(v_absolutePosition, v_gridPosition, i_index, o_quad, tbl_tilesProperties[i_index])
 
-            table.insert(self.tiles, tile)
+            table.insert(self.a_tiles, o_tile)
 
-            index = index + 1
+            i_index = i_index + 1
         end
     end
 end
@@ -79,8 +88,8 @@ end
 --- Get the quad from its Id
 -- @tparam int tileId The Id of the tile
 -- @return love.graphics.Quad
-function Tileset:getQuad(tileId) 
-    return self.tiles[tileId - self.firstTileId + 1].quad
+function Tileset:getQuad(_i_tileId) 
+    return self.a_tiles[_i_tileId - self.i_firstTileId + 1].o_quad
 end
 
 return Tileset

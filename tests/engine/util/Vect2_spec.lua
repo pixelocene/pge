@@ -5,13 +5,13 @@ describe('Vect2', function()
     it('can be constructed', function()
         local vect2 = Vect2:new(10, 30)
 
-        assert.are.same(vect2.x, 10)
-        assert.are.same(vect2.y, 30)
+        assert.are.same(vect2.n_x, 10)
+        assert.are.same(vect2.n_y, 30)
 
         vect2 = Vect2:new(-10, -30)
 
-        assert.are.same(vect2.x, -10)
-        assert.are.same(vect2.y, -30)
+        assert.are.same(vect2.n_x, -10)
+        assert.are.same(vect2.n_y, -30)
     end)
 
     it('two Vect2 can be added', function()
