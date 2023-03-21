@@ -24,16 +24,16 @@ local GameState = {}
 -- return MyGameState
 function GameState:new()
     --- @warning Not to be used directly. Extend it instead.
-    local o = {}
-    setmetatable(o, self)
+    local tbl_o = {}
+    setmetatable(tbl_o, self)
     self.__index = self
 
-    return o
+    return tbl_o
 end
 
 --- Empty update function.
 -- @tparam number dt The Delta Time since the last update
-function GameState:update(dt)
+function GameState:update(_n_dt)
 end
 
 --- Empty draw function.

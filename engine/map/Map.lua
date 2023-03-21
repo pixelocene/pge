@@ -10,14 +10,13 @@ local Vect2   = require('engine.util.Vect2')
 -- @field tileWidth (**int**) The width of a tile in pixels
 -- @field tileHeight (**int**) The height of a tile in pixels
 -- @field tilesets (@{engine.map.Tileset}[]) A table of tilesets
+-- @field nodes () A matrix of all the tiles with their data (data only, nothing relative to rendering)
 Map = {
-    width = 0,
-    height = 0,
-    tileWidth = 0,
-    tileHeight = 0,
-    tilesets = {},
-    layers = {},
-    baseLayerWidth = 0,
+    v_size = nil,
+    v_tileSize = nil,
+    a_tilesets = {},
+    a_layers = {},
+    a_nodes = {},
 }
 
 --- Load a map from a file
@@ -28,30 +27,28 @@ Map = {
 --
 -- -- For a file "assets/maps/graveyard.lua"
 -- Map:load('graveyard')
-function Map:load(file)
-    local data = require('assets.maps.' .. file)
+function Map:load(_s_file)
+    local tbl_data = require('assets.maps.' .. _s_file)
 
-    self.width = data.width
-    self.height = data.height
-    self.tileWidth = data.tilewidth
-    self.tileHeight = data.tileheight
+    self.v_size = Vect2:new(tbl_data.width, tbl_data.height)
+    self.v_tileSize = Vect2:new(tbl_data.tilewidth, tbl_data.tileheight)
 
-    self:loadTilesets(data)
+    self:loadTilesets(tbl_data)
 
-    for _, layer in ipairs(data.layers) do
-        table.insert(self.layers, layer)
+    for _, tbl_layer in ipairs(tbl_data.layers) do
+        table.insert(self.a_layers, tbl_layer)
     end
 
-    self.baseLayerWidth = self.layers[1].width
+    --self:loadNodes()
 end
 
 --- Load the tilesets informations from the tilemap tilesets
 -- @tparam string data The content of the tilemap file
-function Map:loadTilesets(data)
-    for _, tileset in ipairs(data.tilesets) do
+function Map:loadTilesets(_tbl_data)
+    for _, tbl_tileset in ipairs(_tbl_data.tilesets) do
         table.insert(
-            self.tilesets, 
-            Tileset:new(require('assets.tilesets.' .. tileset.name), tileset.firstgid)
+            self.a_tilesets, 
+            Tileset:new(require('assets.tilesets.' .. tbl_tileset.name), tbl_tileset.firstgid)
         )
     end
 end
@@ -59,28 +56,28 @@ end
 --- Draw the map on the screen
 function Map:draw()
 
-    for _, layer in ipairs(self.layers) do
-        for y = 1, layer.height - 1 do
-            for x = 1, layer.width do
+    for _, tbl_layer in ipairs(self.a_layers) do
+        for i_y = 1, tbl_layer.height - 1 do
+            for i_x = 1, tbl_layer.width do
 
-                local index = (x + (y - 1) * self.baseLayerWidth) + 1
-                local tileId = layer.data[index]
+                local i_index = (i_x + (i_y - 1) * self.v_size.n_x) + 1
+                local i_tileId = tbl_layer.data[i_index]
 
-                if tileId ~= 0 then
+                if i_tileId ~= 0 then
 
-                    local tileset = self.tilesets[self:getTilesetForTileId(tileId)]
-                    local quad = tileset:getQuad(tileId)
-                    local offset = tileset.offset
-                    local camera = _G.DataTree.engine.camera
+                    local o_tileset = self.a_tilesets[self:getTilesetForTileId(i_tileId)]
+                    local o_quad = o_tileset:getQuad(i_tileId)
+                    local v_offset = o_tileset.v_offset
+                    local v_camera = _G.DataTree.engine.v_camera
 
-                    local absolutePosition = Vect2:new(
-                        (x - 1) * tileset.tileWidth,
-                        (y - 1) * tileset.tileHeight
+                    local v_absolutePosition = Vect2:new(
+                        (i_x - 1) * o_tileset.v_tileSize.n_x,
+                        (i_y - 1) * o_tileset.v_tileSize.n_y
                     )
 
-                    local position = absolutePosition + offset + camera
+                    local v_position = v_absolutePosition + v_offset + v_camera
 
-                    love.graphics.draw(tileset.image, quad, position.x, position.y)
+                    love.graphics.draw(o_tileset.o_image, o_quad, v_position.n_x, v_position.n_y)
 
                 end
 
@@ -93,10 +90,10 @@ end
 --- Get the tileset for the tileId
 -- @tparam int tileId The tile ID
 -- @treturn int @{engine.Map.Tileset} id in tilesets
-function Map:getTilesetForTileId(tileId)
-    for index = #self.tilesets, 1, -1 do
-        if tileId >= self.tilesets[index].firstTileId then
-            return index
+function Map:getTilesetForTileId(_i_tileId)
+    for i_index = #self.a_tilesets, 1, -1 do
+        if _i_tileId >= self.a_tilesets[i_index].i_firstTileId then
+            return i_index
         end
     end
 
@@ -104,15 +101,19 @@ function Map:getTilesetForTileId(tileId)
 end
 
 function Map:getTileUnderCursor()
-    local x, y = love.mouse.getPosition()
-    local mouse = Vect2:new(x, y)
+    local i_x, i_y = love.mouse.getPosition()
+    local v_mouse = Vect2:new(i_x, i_y)
 
-    local absolutePosition = mouse - _G.DataTree.engine.camera
+    local v_absolutePosition = v_mouse - _G.DataTree.engine.v_camera
 
-    local tileX = math.ceil(absolutePosition.x / self.tileWidth)
-    local tileY = math.ceil(absolutePosition.y / self.tileHeight)
+    local i_tileX = math.ceil(v_absolutePosition.n_x / self.v_tileSize.n_x)
+    local i_tileY = math.ceil(v_absolutePosition.n_y / self.v_tileSize.n_y)
 
-    return tileX, tileY
+    return Vect2:new(i_tileX, i_tileY)
+end
+
+function Map:getNode(_v_tile)
+    return {}
 end
 
 return Map

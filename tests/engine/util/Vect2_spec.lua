@@ -1,33 +1,33 @@
 local Vect2 = require "engine.util.Vect2"
 
-describe('Vect2', function()
+describe('engine.util.Vect2', function()
 
-    it('can be constructed', function()
+    it('Can be constructed', function()
         local vect2 = Vect2:new(10, 30)
 
-        assert.are.same(vect2.x, 10)
-        assert.are.same(vect2.y, 30)
+        assert.are.same(10, vect2.n_x)
+        assert.are.same(30, vect2.n_y)
 
         vect2 = Vect2:new(-10, -30)
 
-        assert.are.same(vect2.x, -10)
-        assert.are.same(vect2.y, -30)
+        assert.are.same(-10, vect2.n_x)
+        assert.are.same(-30, vect2.n_y)
     end)
 
-    it('two Vect2 can be added', function()
+    it('Can be summed', function()
         local a = Vect2:new(1, 0)
         local b = Vect2:new(2, 1)
         local c = Vect2:new(-1, -2)
 
-        assert.are.same(a + b, Vect2:new(3, 1))
-        assert.are.same(b + c, Vect2:new(1, -1))
+        assert.are.same(Vect2:new(3, 1), a + b)
+        assert.are.same(Vect2:new(1, -1), b + c)
     end)
 
-    it('a number can be added to a Vect2', function()
+    it('Can be summed to a number', function()
         local a = Vect2:new(1, 1)
 
-        assert.are.same(a + 2, Vect2:new(3, 3))
-        assert.are.same(2 + a, Vect2:new(3, 3))
+        assert.are.same(Vect2:new(3, 3), a + 2)
+        assert.are.same(Vect2:new(3, 3), 2 + a)
     end)
 
 end)

@@ -16,39 +16,39 @@ local Vect2 = require "engine.util.Vect2"
 DataTree = {
     system = {
         mouse = {
-            grabbing = false,
-            originalPosition = Vect2:new(0, 0),
+            b_grabbing = false,
+            v_originalPosition = Vect2:new(0, 0),
         },
     },
     engine = {
-        camera = Vect2:new(0, 0),
-        map = nil,
+        v_camera = Vect2:new(0, 0),
+        o_map = nil,
     },
     game = {
-        states = {},
-        state = nil,
+        a_states = {},
+        o_state = nil,
     },
 }
 
 --- Intialize the DataTree
 function DataTree:init()
     -- Load all the parts of the engine
-    self.engine.map = require('engine.map.Map')
+    self.engine.o_map = require('engine.map.Map')
 end
 
-function DataTree:registerStates(states)
-    for name , state in pairs(states) do
-        self.game.states[name] = state
+function DataTree:registerStates(_a_states)
+    for s_name , o_state in pairs(_a_states) do
+        self.game.a_states[s_name] = o_state
     end
 end
 
-function DataTree:setStartingState(stateName)
-    self.game.state = self.game.states[stateName]
+function DataTree:setStartingState(_s_stateName)
+    self.game.o_state = self.game.a_states[_s_stateName]
 end
 
 --- Reset the game data
 function DataTree:reset()
-    self.game.state = self.game.states['game']
+    self.game.o_state = self.game.a_states['game']
 end
 
 return DataTree
