@@ -1,11 +1,11 @@
 local String = require('engine.util.String')
 
-describe('Test String util', function ()
-    
-    it('replace string in string', function ()
+describe('engine.util.String', function ()
+ 
+    it('Replace string in string', function ()
 
-        assert.are.same(String.replace('Hello World', 'World', 'Kitty'), 'Hello Kitty')
-        assert.are.same(String.replace('../assets', '..', 'local'), 'local/assets')
+        assert.are.same('Hello Kitty', String.replace('Hello World', 'World', 'Kitty'))
+        assert.are.same('local/assets', String.replace('../assets', '..', 'local'))
 
     end)
 
